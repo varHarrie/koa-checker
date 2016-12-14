@@ -11,8 +11,8 @@ router.get('/checkBody', checker({
   age: (ctx) => ctx.checkBody('age', true).is('number'),
   hobby: (ctx) => ctx.checkBody('hobby', true).is('array')
 }), function (ctx, next) {
-  const {username, age, hobby} = ctx.vals()
-  ctx.body = {username, age, hobby}
+  const data = ctx.vals
+  ctx.body = {success: true, data}
 })
 
 app.use(router.routes())
@@ -28,17 +28,15 @@ describe('checkBody', function (done) {
     request(app.listen())
       .get('/checkBody')
       .send(data)
-      .expect(data, done)
+      .expect(Object.assign({success: true, data}), done)
   })
-})
 
-describe('checkQuery Error', function (done) {
   it('respond 500', function (done) {
     request(app.listen())
-      .get('/checkQuery')
+      .get('/checkBody')
       .expect(500, {
         success: false,
-        msg: 'sortBy is required'
+        msg: 'username is required'
       }, done)
   })
 })

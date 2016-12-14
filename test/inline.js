@@ -1,24 +1,23 @@
 const request = require('supertest')
 const Router = require('koa-router')
 
-const checker = require('../lib')
+// const checker = require('../lib')
 const app = require('./app')
 
 const router = new Router()
 
-router.get('/checkQuery', checker({
-  sortBy: (ctx) => ctx.checkQuery('sortBy').required(),
-  skip: (ctx) => ctx.checkQuery('skip').defaultTo(0),
-  limit: (ctx) => ctx.checkQuery('limit').defaultTo(10)
-}), function (ctx, next) {
-  const {sortBy, skip, limit} = ctx.vals
+router.get('/checkQuery', function (ctx, next) {
+  const sortBy = ctx.checkQuery('sortBy').required().val
+  const skip = ctx.checkQuery('skip').defaultTo(0).val
+  const limit = ctx.checkQuery('limit').defaultTo(10).val
+
   ctx.body = {success: true, sortBy, skip, limit}
 })
 
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-describe('checkQuery', function (done) {
+describe('inline checkQuery', function (done) {
   it('respond 200', function (done) {
     request(app.listen())
       .get('/checkQuery')
